@@ -1,987 +1,752 @@
-// ============================================
-// CÓDIGO JAVASCRIPT CORRIGIDO E OTIMIZADO
-// CORREÇÃO ESPECÍFICA PARA SIDEBAR MOBILE
-// ============================================
-
-(function() {
-  'use strict';
-
-  // Variáveis globais
-  let modalOverlay = null;
-  let sidebarOverlay = null;
-
-  // ============================================
-  // INICIALIZAÇÃO PRINCIPAL
-  // ============================================
-  document.addEventListener("DOMContentLoaded", function() {
-    console.log('DOM carregado - iniciando configurações...');
-    
-    try {
-      initializeApp();
-    } catch (error) {
-      console.error('Erro na inicialização:', error);
-    }
-  });
-
-  function initializeApp() {
-    // Configurações principais
+document.addEventListener("DOMContentLoaded", function () {
+   
     setupProfileDropdown();
-    setupNavbarCollapse();
-    setupSocialMediaModals();
-    setupImageUploads();
-    setupSidebar();
-    setupSubmenuToggle();
-    loadSavedData();
-
-    // Event listeners para redimensionamento
-    window.addEventListener("resize", debounce(handleResize, 250));
-  }
-
-  // ============================================
-  // CONFIGURAÇÃO DO DROPDOWN DE PERFIL
-  // ============================================
+   
+   
+    const navbarCollapse = document.getElementById('navbarNav');
+   
+   
+    if (window.bootstrap && navbarCollapse) {
+      const collapseInstance = new bootstrap.Collapse(navbarCollapse, {
+        toggle: false // Não alternar ao criar a instância
+      });
+     
+    
+      navbarCollapse.addEventListener('hidden.bs.collapse', function () {
+     
+        const toggleButton = document.getElementById('icone');
+        if (toggleButton) {
+          toggleButton.classList.remove('collapsed');
+          toggleButton.setAttribute('aria-expanded', 'false');
+        }
+      });
+    }
+ 
+    else if ($ && navbarCollapse) {
+      $(navbarCollapse).on('hidden.bs.collapse', function () {
+        const toggleButton = document.getElementById('icone');
+        if (toggleButton) {
+          toggleButton.classList.remove('collapsed');
+          toggleButton.setAttribute('aria-expanded', 'false');
+        }
+      });
+    }
+   
+   
+    const instagramBtn = document.getElementById("botao");
+    const instagramCaixa = document.getElementById("caixa-principal");
+    const instagramSairBtn = document.getElementById("botao-sair");
+    const instagramInput = document.getElementById("instagram");
+    const instagramLinkContainer = document.getElementById("linkContainer");
+    const instagramEditarBtn = document.getElementById("editarLink");
+    const instagramConfirmarBtn = document.getElementById("botaocaixa");
+    const modalOverlay = createModalOverlay();
+  
+  
+   
+    const facebookBtn = document.getElementById("facebook");
+    const facebookCaixa = document.getElementById("caixa-principal2");
+    const facebookSairBtn = document.getElementById("botao-sair2");
+   
+    if (facebookBtn && facebookCaixa && facebookSairBtn) {
+      facebookBtn.addEventListener("click", () => {
+        facebookCaixa.style.display = "flex";
+        modalOverlay.style.display = "block";
+        document.body.style.overflow = "hidden";
+      });
+     
+      facebookSairBtn.addEventListener("click", () => {
+        facebookCaixa.style.display = "none";
+        modalOverlay.style.display = "none";
+        document.body.style.overflow = "auto";
+      });
+    }
+  
+  
+    if (instagramBtn) {
+      instagramBtn.addEventListener("click", () => {
+        instagramCaixa.style.display = "flex";
+        modalOverlay.style.display = "block";
+        document.body.style.overflow = "hidden";
+      });
+    }
+  
+  
+    if (instagramSairBtn) {
+      instagramSairBtn.addEventListener("click", () => {
+        instagramCaixa.style.display = "none";
+        modalOverlay.style.display = "none";
+        document.body.style.overflow = "auto";
+      });
+    }
+  
+  
+    
+    const toggleButton = document.getElementById('icone');
+    if (toggleButton) {
+      toggleButton.addEventListener('click', function() {
+      
+        if (window.bootstrap && navbarCollapse) {
+          const bsCollapse = bootstrap.Collapse.getInstance(navbarCollapse);
+          if (bsCollapse) {
+            if (navbarCollapse.classList.contains('show')) {
+              bsCollapse.hide();
+            } else {
+              bsCollapse.show();
+            }
+          } else {
+          
+            navbarCollapse.classList.toggle('show');
+          }
+        }
+       
+        else if ($) {
+          $(navbarCollapse).collapse('toggle');
+        }
+      
+        else if (navbarCollapse) {
+          if (navbarCollapse.classList.contains('show')) {
+            navbarCollapse.classList.remove('show');
+            toggleButton.setAttribute('aria-expanded', 'false');
+          } else {
+            navbarCollapse.classList.add('show');
+            toggleButton.setAttribute('aria-expanded', 'true');
+          }
+        }
+      });
+    }
+  
+  
+   
+    handleHeaderAnimation();
+    handleSidebarHover();
+  });
+  
+  
   function setupProfileDropdown() {
     const usuarioBtn = document.getElementById("usuario");
     const dropdownMenu = document.getElementById("dropzinho");
-    
-    if (!usuarioBtn || !dropdownMenu) {
-      console.warn('Elementos do dropdown não encontrados');
-      return;
-    }
-
-    // Limpar event listeners existentes
-    usuarioBtn.replaceWith(usuarioBtn.cloneNode(true));
-    const newUsuarioBtn = document.getElementById("usuario");
-    
+   
+    if (!usuarioBtn || !dropdownMenu) return;
+   
+ 
     const isMobile = window.innerWidth <= 768;
-    
+   
     if (isMobile) {
-      setupMobileDropdown(newUsuarioBtn, dropdownMenu);
-    } else {
-      setupDesktopDropdown(newUsuarioBtn, dropdownMenu);
-    }
-
-    // Event listener para itens do dropdown
-    setupDropdownItems(dropdownMenu);
-  }
-
-  function setupMobileDropdown(btn, dropdown) {
-    btn.addEventListener("click", function(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      toggleDropdown(dropdown);
-    });
-
-    document.addEventListener("click", function(e) {
-      if (!btn.contains(e.target) && !dropdown.contains(e.target)) {
-        hideDropdown(dropdown);
-      }
-    });
-  }
-
-  function setupDesktopDropdown(btn, dropdown) {
-    const profileDropdown = document.querySelector(".profile-dropdown");
-    
-    if (profileDropdown) {
-      profileDropdown.addEventListener("mouseenter", () => showDropdown(dropdown));
-      profileDropdown.addEventListener("mouseleave", () => hideDropdown(dropdown));
-    }
-
-    btn.addEventListener("click", function(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      toggleDropdown(dropdown);
-    });
-  }
-
-  function setupDropdownItems(dropdown) {
-    const items = dropdown.querySelectorAll('.dropdown-item');
-    items.forEach(item => {
-      item.addEventListener('click', () => hideDropdown(dropdown));
-    });
-  }
-
-  function showDropdown(dropdown) {
-    dropdown.style.display = "block";
-  }
-
-  function hideDropdown(dropdown) {
-    dropdown.style.display = "none";
-  }
-
-  function toggleDropdown(dropdown) {
-    dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
-  }
-
-  // ============================================
-  // CONFIGURAÇÃO DA NAVBAR - CORRIGIDA
-  // ============================================
-  function setupNavbarCollapse() {
-    const navbarCollapse = document.getElementById('navbarNav');
-    const toggleButton = document.getElementById('icone');
-    
-    if (!navbarCollapse || !toggleButton) {
-      console.warn('Elementos da navbar não encontrados');
-      return;
-    }
-
-    console.log('Configurando navbar collapse...');
-
-    // Remover event listeners antigos
-    const newToggleButton = toggleButton.cloneNode(true);
-    toggleButton.parentNode.replaceChild(newToggleButton, toggleButton);
-
-    // Verificar se Bootstrap está disponível
-    if (typeof bootstrap !== 'undefined' && bootstrap.Collapse) {
-      console.log('Usando Bootstrap collapse...');
-      setupBootstrapCollapse(navbarCollapse, newToggleButton);
-    }
-    // Verificar se jQuery está disponível
-    else if (typeof $ !== 'undefined' && $.fn.collapse) {
-      console.log('Usando jQuery collapse...');
-      setupJQueryCollapse(navbarCollapse, newToggleButton);
-    }
-    // Fallback para Vanilla JS
-    else {
-      console.log('Usando Vanilla JS collapse...');
-      setupVanillaCollapse(navbarCollapse, newToggleButton);
-    }
-
-    // Event listener adicional para fechar navbar quando clicar em links
-    setupNavbarLinkClosing(navbarCollapse);
-  }
-
-  function setupBootstrapCollapse(navbar, toggle) {
-    // Inicializar Bootstrap Collapse se não existir
-    let collapseInstance = bootstrap.Collapse.getInstance(navbar);
-    if (!collapseInstance) {
-      collapseInstance = new bootstrap.Collapse(navbar, { 
-        toggle: false,
-        parent: false
-      });
-    }
-    
-    // Event listeners para mudanças de estado
-    navbar.addEventListener('shown.bs.collapse', function() {
-      console.log('Navbar aberta');
-      updateToggleState(toggle, true);
-      toggle.classList.add('collapsed');
-    });
-
-    navbar.addEventListener('hidden.bs.collapse', function() {
-      console.log('Navbar fechada');
-      updateToggleState(toggle, false);
-      toggle.classList.remove('collapsed');
-    });
-
-    // Click handler para o botão toggle
-    toggle.addEventListener('click', function(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      
-      console.log('Toggle clicked, navbar classes:', navbar.classList.toString());
-      
-      const isShown = navbar.classList.contains('show') || navbar.classList.contains('showing');
-      
-      if (isShown) {
-        collapseInstance.hide();
-      } else {
-        collapseInstance.show();
-      }
-    });
-  }
-
-  function setupJQueryCollapse(navbar, toggle) {
-    const $navbar = $(navbar);
-    
-    $navbar.on('shown.bs.collapse', function() {
-      console.log('Navbar aberta (jQuery)');
-      updateToggleState(toggle, true);
-    });
-
-    $navbar.on('hidden.bs.collapse', function() {
-      console.log('Navbar fechada (jQuery)');
-      updateToggleState(toggle, false);
-    });
-
-    toggle.addEventListener('click', function(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      
-      console.log('Toggle clicked (jQuery)');
-      $navbar.collapse('toggle');
-    });
-  }
-
-  function setupVanillaCollapse(navbar, toggle) {
-    // Configurar estado inicial
-    navbar.style.transition = 'all 0.35s ease';
-    
-    toggle.addEventListener('click', function(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      
-      console.log('Toggle clicked (Vanilla JS)');
-      
-      const isVisible = navbar.classList.contains('show');
-      
-      if (isVisible) {
-        // Fechar navbar
-        navbar.style.height = navbar.scrollHeight + 'px';
-        requestAnimationFrame(() => {
-          navbar.style.height = '0px';
-          navbar.style.overflow = 'hidden';
-        });
-        
-        setTimeout(() => {
-          navbar.classList.remove('show');
-          navbar.style.height = '';
-          navbar.style.overflow = '';
-          updateToggleState(toggle, false);
-        }, 350);
-      } else {
-        // Abrir navbar
-        navbar.classList.add('show');
-        navbar.style.height = '0px';
-        navbar.style.overflow = 'hidden';
-        
-        requestAnimationFrame(() => {
-          navbar.style.height = navbar.scrollHeight + 'px';
-        });
-        
-        setTimeout(() => {
-          navbar.style.height = '';
-          navbar.style.overflow = '';
-          updateToggleState(toggle, true);
-        }, 350);
-      }
-    });
-  }
-
-  function setupNavbarLinkClosing(navbar) {
-    // Fechar navbar ao clicar em links (apenas em mobile)
-    const navLinks = navbar.querySelectorAll('.nav-link, .dropdown-item');
-    
-    navLinks.forEach(link => {
-      link.addEventListener('click', function() {
-        if (window.innerWidth <= 768) {
-          // Fechar navbar após um pequeno delay
-          setTimeout(() => {
-            if (navbar.classList.contains('show')) {
-              // Usar o método apropriado baseado na biblioteca disponível
-              if (typeof bootstrap !== 'undefined' && bootstrap.Collapse) {
-                const collapseInstance = bootstrap.Collapse.getInstance(navbar);
-                if (collapseInstance) {
-                  collapseInstance.hide();
-                }
-              } else if (typeof $ !== 'undefined' && $.fn.collapse) {
-                $(navbar).collapse('hide');
-              } else {
-                navbar.classList.remove('show');
-                const toggle = document.getElementById('icone');
-                if (toggle) {
-                  updateToggleState(toggle, false);
-                }
-              }
-            }
-          }, 100);
+  
+      usuarioBtn.addEventListener("click", function(e) {
+        e.preventDefault();
+        e.stopPropagation(); 
+        if (dropdownMenu.style.display === "block") {
+          dropdownMenu.style.display = "none";
+        } else {
+          dropdownMenu.style.display = "block";
         }
       });
-    });
-  }
-
-  function updateToggleState(toggle, expanded) {
-    if (!toggle) return;
-    
-    toggle.setAttribute('aria-expanded', expanded.toString());
-    
-    if (expanded) {
-      toggle.classList.add('collapsed');
+     
+  
+      document.addEventListener("click", function(e) {
+        if (!usuarioBtn.contains(e.target) && !dropdownMenu.contains(e.target)) {
+          dropdownMenu.style.display = "none";
+        }
+      });
     } else {
-      toggle.classList.remove('collapsed');
+
+      usuarioBtn.addEventListener("mouseenter", function() {
+        dropdownMenu.style.display = "block";
+      });
+     
+  
+      const profileDropdown = document.querySelector(".profile-dropdown");
+      if (profileDropdown) {
+        profileDropdown.addEventListener("mouseleave", function() {
+          dropdownMenu.style.display = "none";
+        });
+      }
+     
+
+      usuarioBtn.addEventListener("click", function(e) {
+        e.preventDefault();
+        e.stopPropagation(); 
+        if (dropdownMenu.style.display === "block") {
+          dropdownMenu.style.display = "none";
+        } else {
+          dropdownMenu.style.display = "block";
+        }
+      });
     }
-    
-    console.log('Toggle state updated:', {
-      expanded: expanded,
-      ariaExpanded: toggle.getAttribute('aria-expanded'),
-      hasCollapsedClass: toggle.classList.contains('collapsed')
+   
+
+    const dropdownItems = dropdownMenu.querySelectorAll('.dropdown-item');
+    dropdownItems.forEach(item => {
+      item.addEventListener('click', function() {
+        dropdownMenu.style.display = "none";
+      });
     });
   }
+  
 
-  // ============================================
-  // CONFIGURAÇÃO DOS MODAIS DE REDES SOCIAIS
-  // ============================================
-  function setupSocialMediaModals() {
-    setupInstagramModal();
-    setupFacebookModal();
-    createModalOverlay();
+  window.addEventListener("resize", function() {
+    setupProfileDropdown();
+    handleHeaderAnimation();
+    handleSidebarHover();
+    ensureSidebarHeight();
+  });
+  
+
+  function toggleSidebar() {
+    const sidebar = document.getElementById("sidebar");
+    const body = document.body;
+  
+  
+    sidebar.classList.toggle("open");
+    body.classList.toggle("sidebar-open"); 
+  
+  
+    let overlay = document.getElementById("sidebar-overlay");
+    if (!overlay) {
+      overlay = document.createElement("div");
+      overlay.id = "sidebar-overlay";
+      overlay.style.display = "none";
+      overlay.style.position = "fixed";
+      overlay.style.top = "0";
+      overlay.style.left = "0";
+      overlay.style.right = "0";
+      overlay.style.bottom = "0";
+      overlay.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
+      overlay.style.zIndex = "650";
+      document.body.appendChild(overlay);
+  
+  
+      overlay.addEventListener("click", function () {
+        toggleSidebar();
+      });
+    }
+  
+  
+    if (sidebar.classList.contains("open")) {
+      overlay.style.display = "block";
+      document.body.style.overflow = "hidden";
+  
+  
+      // Garante que o botão de upload permaneça visível
+      const imgHeader = document.getElementById("imgheader");
+      if (imgHeader) {
+        imgHeader.style.visibility = "visible";
+        imgHeader.style.opacity = "1";
+      }
+    } else {
+      overlay.style.display = "none";
+      document.body.style.overflow = "auto";
+    }
   }
-
-  function setupInstagramModal() {
-    const btn = document.getElementById("botao");
-    const modal = document.getElementById("caixa-principal");
-    const exitBtn = document.getElementById("botao-sair");
-    const confirmBtn = document.getElementById("botaocaixa");
-    const editBtn = document.getElementById("editarLink");
-
-    if (!btn || !modal || !exitBtn) return;
-
-    btn.addEventListener("click", () => openModal(modal));
-    exitBtn.addEventListener("click", () => closeModal(modal));
-    
-    if (confirmBtn) {
-      confirmBtn.addEventListener("click", gerarLinkInstagram);
-    }
-    
-    if (editBtn) {
-      editBtn.addEventListener("click", editInstagramLink);
-    }
-  }
-
-  function setupFacebookModal() {
-    const btn = document.getElementById("facebook");
-    const modal = document.getElementById("caixa-principal2");
-    const exitBtn = document.getElementById("botao-sair2");
-    const confirmBtn = document.getElementById("botaocaixa2");
-    const editBtn = document.getElementById("editarLink2");
-
-    if (!btn || !modal || !exitBtn) return;
-
-    btn.addEventListener("click", () => openModal(modal));
-    exitBtn.addEventListener("click", () => closeModal(modal));
-    
-    if (confirmBtn) {
-      confirmBtn.addEventListener("click", gerarLinkFacebook);
-    }
-    
-    if (editBtn) {
-      editBtn.addEventListener("click", editFacebookLink);
-    }
-  }
-
+  
+  
   function createModalOverlay() {
-    if (modalOverlay) return modalOverlay;
-
-    modalOverlay = document.createElement("div");
-    modalOverlay.id = "modal-overlay";
-    modalOverlay.style.cssText = `
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: rgba(0, 0, 0, 0.7);
-      z-index: 1000;
-    `;
-    
-    document.body.appendChild(modalOverlay);
+    let modalOverlay = document.getElementById("modal-overlay");
+    if (!modalOverlay) {
+      modalOverlay = document.createElement("div");
+      modalOverlay.id = "modal-overlay";
+      modalOverlay.style.display = "none";
+      modalOverlay.style.position = "fixed";
+      modalOverlay.style.top = "0";
+      modalOverlay.style.left = "0";
+      modalOverlay.style.right = "0";
+      modalOverlay.style.bottom = "0";
+      modalOverlay.style.backgroundColor = "rgba(0, 0, 0, 0.7)";
+      modalOverlay.style.zIndex = "1000";
+      document.body.appendChild(modalOverlay);
+    }
     return modalOverlay;
   }
-
-  function openModal(modal) {
-    if (!modal || !modalOverlay) return;
-    
-    modal.style.display = "flex";
-    modalOverlay.style.display = "block";
-    document.body.style.overflow = "hidden";
-  }
-
-  function closeModal(modal) {
-    if (!modal || !modalOverlay) return;
-    
-    modal.style.display = "none";
-    modalOverlay.style.display = "none";
-    document.body.style.overflow = "auto";
-  }
-
-  // ============================================
-  // FUNÇÕES DE REDES SOCIAIS
-  // ============================================
-  function gerarLinkInstagram() {
-    const input = document.getElementById("instagram");
-    const linkContainer = document.getElementById("linkContainer");
-    const editBtn = document.getElementById("editarLink");
-    const confirmBtn = document.getElementById("botaocaixa");
-    const socialBtn = document.getElementById("botao");
-    const textElement = document.getElementById("texto-caixa3");
-
-    if (!input || !linkContainer) return;
-
-    const username = input.value.trim();
-    if (!isValidSocialUsername(username)) {
-      showAlert("Por favor, insira um Instagram válido (somente letras, números, pontos e underlines).");
-      return;
-    }
-
-    const cleanUsername = username.replace(/^@/, "");
-    const link = `https://www.instagram.com/${cleanUsername}`;
-
-    updateSocialLink(linkContainer, link, socialBtn, "Instagram");
-    toggleSocialElements(input, confirmBtn, editBtn, false);
-    
-    if (textElement) {
-      textElement.textContent = "Aqui você pode editar o Instagram da sua empresa!";
-    }
-    
-    input.value = "";
-  }
-
-  function gerarLinkFacebook() {
-    const input = document.getElementById("facebook2");
-    const linkContainer = document.getElementById("linkContainer2");
-    const editBtn = document.getElementById("editarLink2");
-    const confirmBtn = document.getElementById("botaocaixa2");
-    const socialBtn = document.getElementById("facebook");
-    const textElement = document.getElementById("texto-caixa4");
-
-    if (!input || !linkContainer) return;
-
-    const username = input.value.trim();
-    if (!isValidSocialUsername(username)) {
-      showAlert("Por favor, insira um Facebook válido (somente letras, números, pontos e underlines).");
-      return;
-    }
-
-    const cleanUsername = username.replace(/^@/, "");
-    const link = `https://www.facebook.com/${cleanUsername}`;
-
-    updateSocialLink(linkContainer, link, socialBtn, "Facebook");
-    toggleSocialElements(input, confirmBtn, editBtn, false);
-    
-    if (textElement) {
-      textElement.textContent = "Aqui você pode editar o Facebook da sua empresa!";
-    }
-    
-    input.value = "";
-  }
-
-  function editInstagramLink() {
-    const input = document.getElementById("instagram");
-    const linkContainer = document.getElementById("linkContainer");
-    const confirmBtn = document.getElementById("botaocaixa");
-    const editBtn = document.getElementById("editarLink");
-
-    toggleSocialElements(input, confirmBtn, editBtn, true);
-    linkContainer.innerHTML = "";
-  }
-
-  function editFacebookLink() {
-    const input = document.getElementById("facebook2");
-    const linkContainer = document.getElementById("linkContainer2");
-    const confirmBtn = document.getElementById("botaocaixa2");
-    const editBtn = document.getElementById("editarLink2");
-
-    toggleSocialElements(input, confirmBtn, editBtn, true);
-    linkContainer.innerHTML = "";
-  }
-
-  function isValidSocialUsername(username) {
-    const regex = /^[a-zA-Z0-9._]+$/;
-    return username && regex.test(username.replace(/^@/, ""));
-  }
-
-  function updateSocialLink(container, link, button, platform) {
-    container.innerHTML = `
-      <div style="text-align: center;">
-        <a href="${link}" target="_blank" style="color:#EC9E07; font-size:16px; word-wrap:break-word;">
-          ${link}
-        </a>
-      </div>
-    `;
-    
-    if (button) {
-      button.setAttribute("href", link);
-      button.innerHTML = platform;
-    }
-  }
-
-  function toggleSocialElements(input, confirmBtn, editBtn, show) {
-    if (input) input.style.display = show ? "block" : "none";
-    if (confirmBtn) confirmBtn.style.display = show ? "block" : "none";
-    if (editBtn) editBtn.style.display = show ? "none" : "inline-block";
-  }
-
-  function showAlert(message) {
-    alert(message);
-  }
-
-  // ============================================
-  // CONFIGURAÇÃO DE UPLOAD DE IMAGENS
-  // ============================================
-  function setupImageUploads() {
-    setupImagePreview("imageUpload", "imgheader", "btnn", "headerLogo");
-    setupImagePreview("imgUpload", "imgfooter", "btnn2", "footerLogo");
-    setupUserPhotoUpload();
-  }
-
-  function setupImagePreview(inputId, containerId, buttonIconId, storageKey) {
-    const fileInput = document.getElementById(inputId);
-    const container = document.getElementById(containerId);
-    const buttonIcon = document.getElementById(buttonIconId);
-
-    if (!fileInput || !container) return;
-
-    fileInput.addEventListener("change", function() {
-      if (this.files && this.files[0]) {
-        const reader = new FileReader();
-        
-        reader.onload = function(e) {
-          createImagePreview(container, e.target.result, buttonIcon, storageKey);
-        };
-        
-        reader.readAsDataURL(this.files[0]);
+  
+  
+  function handleHeaderAnimation() {
+    const header = document.getElementById("header");
+  
+  
+    if (header) {
+      if (window.innerWidth <= 768) {
+        header.style.transition = "none";
+      } else {
+        header.style.transition = "all 0.3s ease-in-out";
       }
-    });
-  }
-
-  function setupUserPhotoUpload() {
-    const userIcon = document.getElementById("userIcon");
-    if (!userIcon) return;
-
-    let userPhotoInput = document.getElementById('userPhotoInput');
-    if (!userPhotoInput) {
-      userPhotoInput = document.createElement('input');
-      userPhotoInput.type = 'file';
-      userPhotoInput.id = 'userPhotoInput';
-      userPhotoInput.accept = 'image/*';
-      userPhotoInput.style.display = 'none';
-      document.body.appendChild(userPhotoInput);
     }
+  }
+  
+  
+  function handleSidebarHover() {
+    const sidebar = document.getElementById("sidebar");
+    const body = document.body;
+    const imgHeader = document.getElementById("imgheader");
+  
+  
+    if (sidebar) {
 
-    userIcon.addEventListener("click", function(e) {
-      e.preventDefault();
-      userPhotoInput.click();
-    });
+      const oldMouseEnter = sidebar._mouseenterListener;
+      const oldMouseLeave = sidebar._mouseleaveListener;
+     
+      if (oldMouseEnter) {
+        sidebar.removeEventListener("mouseenter", oldMouseEnter);
+      }
+     
+      if (oldMouseLeave) {
+        sidebar.removeEventListener("mouseleave", oldMouseLeave);
+      }
+     
+
+      const isTablet = window.innerWidth > 768 && window.innerWidth <= 992;
+     
+
+      if (!isTablet && window.innerWidth > 768) {
+        const mouseenterListener = function() {
+          body.classList.add("sidebar-expanded");
+
+          if (imgHeader) {
+            imgHeader.style.visibility = "visible";
+            imgHeader.style.opacity = "1";
+          }
+        };
+       
+        const mouseleaveListener = function() {
+          body.classList.remove("sidebar-expanded");
+        };
+       
+        sidebar.addEventListener("mouseenter", mouseenterListener);
+        sidebar.addEventListener("mouseleave", mouseleaveListener);
+       
+
+        sidebar._mouseenterListener = mouseenterListener;
+        sidebar._mouseleaveListener = mouseleaveListener;
+      }
+
+      else if (isTablet) {
+
+        if (imgHeader) {
+          imgHeader.style.visibility = "visible";
+          imgHeader.style.opacity = "1";
+        }
+      }
+    }
+  }
+  
+  
+
+  function ensureSidebarHeight() {
+    const sidebar = document.getElementById("sidebar");
+    if (sidebar && window.innerWidth <= 768) {
+
+      const docHeight = Math.max(
+        document.body.scrollHeight,
+        document.body.offsetHeight,
+        document.documentElement.clientHeight,
+        document.documentElement.scrollHeight,
+        document.documentElement.offsetHeight
+      );
+  
+  
+      sidebar.style.height = Math.max(docHeight, window.innerHeight) + "px";
+    }
+  }
+  
+  function gerarLinkInstagram() {
+    const instagram = document.getElementById("instagram").value.trim();
+    const instagramLinkContainer = document.getElementById("linkContainer");
+    const instagramEditarBtn = document.getElementById("editarLink");
+    const instagramConfirmarBtn = document.getElementById("botaocaixa");
+    const instagramInput = document.getElementById("instagram");
+    const instagramBtn = document.getElementById("botao");
+   
+    const regexInstagram = /^[a-zA-Z0-9._]+$/;
+  
+  
+    if (instagram && regexInstagram.test(instagram.replace(/^@/, ""))) {
+      const padrao = instagram.startsWith("@") ? instagram.slice(1) : instagram;
+      const link = `https://www.instagram.com/${padrao}`;
+  
+  
+      instagramLinkContainer.innerHTML = `
+        <div style="text-align: center;">
+          <a href="${link}" target="_blank" style="color:#EC9E07; font-size:16px; word-wrap:break-word;">
+            ${link}
+          </a>
+        </div>
+      `;
+      instagramBtn.setAttribute("href", link);
+      instagramBtn.innerHTML = "Instagram";
+  
+  
+      instagramInput.style.display = "none";
+      instagramConfirmarBtn.style.display = "none";
+      instagramEditarBtn.style.display = "inline-block";
+      instagramInput.value = "";
+      document.getElementById("texto-caixa3").textContent = "Aqui você pode editar o Instagram da sua empresa!";
+    } else {
+      alert("Por favor, insira um Instagram válido (somente letras, números, pontos e underlines).");
+      instagramLinkContainer.innerHTML = "";
+    }
+  }
+  
+  
+  // Função para gerar link do Facebook
+  function gerarLinkFacebook() {
+    const facebook = document.getElementById("facebook2").value.trim();
+    const facebookLinkContainer = document.getElementById("linkContainer2");
+    const facebookEditarBtn = document.getElementById("editarLink2");
+    const facebookConfirmarBtn = document.getElementById("botaocaixa2");
+    const facebookInput = document.getElementById("facebook2");
+    const facebookBtn = document.getElementById("facebook");
+   
+    const regexFacebook = /^[a-zA-Z0-9._]+$/;
+  
+  
+    if (facebook && regexFacebook.test(facebook.replace(/^@/, ""))) {
+      const padrao = facebook.startsWith("@") ? facebook.slice(1) : facebook;
+      const link = `https://www.facebook.com/${padrao}`;
+  
+  
+      facebookLinkContainer.innerHTML = `
+        <div style="text-align: center;">
+          <a href="${link}" target="_blank" style="color:#EC9E07; font-size:16px; word-wrap:break-word;">
+            ${link}
+          </a>
+        </div>
+      `;
+      facebookBtn.setAttribute("href", link);
+      facebookBtn.innerHTML = "Facebook";
+  
+  
+      facebookInput.style.display = "none";
+      facebookConfirmarBtn.style.display = "none";
+      facebookEditarBtn.style.display = "inline-block";
+      facebookInput.value = "";
+      document.getElementById("texto-caixa4").textContent = "Aqui você pode editar o Facebook da sua empresa!";
+    } else {
+      alert("Por favor, insira um Facebook válido (somente letras, números, pontos e underlines).");
+      facebookLinkContainer.innerHTML = "";
+    }
+  }
+  
+
+  document.addEventListener("DOMContentLoaded", function() {
+    const editarInstagramBtn = document.getElementById("editarLink");
+    if (editarInstagramBtn) {
+      editarInstagramBtn.addEventListener("click", function() {
+        const instagramInput = document.getElementById("instagram");
+        const instagramLinkContainer = document.getElementById("linkContainer");
+        const instagramConfirmarBtn = document.getElementById("botaocaixa");
+       
+        instagramInput.style.display = "block";
+        instagramConfirmarBtn.style.display = "block";
+        instagramLinkContainer.innerHTML = "";
+        editarInstagramBtn.style.display = "none";
+      });
+    }
+   
+    const editarFacebookBtn = document.getElementById("editarLink2");
+    if (editarFacebookBtn) {
+      editarFacebookBtn.addEventListener("click", function() {
+        const facebookInput = document.getElementById("facebook2");
+        const facebookLinkContainer = document.getElementById("linkContainer2");
+        const facebookConfirmarBtn = document.getElementById("botaocaixa2");
+       
+        facebookInput.style.display = "block";
+        facebookConfirmarBtn.style.display = "block";
+        facebookLinkContainer.innerHTML = "";
+        editarFacebookBtn.style.display = "none";
+      });
+    }
+  });
+
+
+document.addEventListener("DOMContentLoaded", function() {
+
+    setupImagePreview("imageUpload", "imgheader", "btnn");
+    
+
+    setupImagePreview("imgUpload", "imgfooter", "btnn2");
+    
+
+    const userPhotoInput = document.createElement('input');
+    userPhotoInput.type = 'file';
+    userPhotoInput.id = 'userPhotoInput';
+    userPhotoInput.accept = 'image/*';
+    userPhotoInput.style.display = 'none';
+    document.body.appendChild(userPhotoInput);
+    
+
+    const userIcon = document.getElementById("userIcon");
+    if (userIcon) {
+      userIcon.addEventListener("click", function(e) {
+        e.preventDefault();
+        userPhotoInput.click();
+      });
+    }
+    
 
     userPhotoInput.addEventListener("change", function() {
       if (this.files && this.files[0]) {
         const reader = new FileReader();
         
         reader.onload = function(e) {
-          updateUserPhoto(e.target.result);
+          const userPhoto = document.getElementById("userPhoto");
+          if (userPhoto) {
+            userPhoto.src = e.target.result;
+            userPhoto.style.display = "inline-block";
+            
+
+            const userIcon = document.getElementById("userIcon");
+            if (userIcon) {
+              userIcon.style.display = "none";
+            }
+          }
         };
         
         reader.readAsDataURL(this.files[0]);
       }
     });
-  }
+  });
 
-  function createImagePreview(container, imageData, buttonIcon, storageKey) {
-    if (buttonIcon) buttonIcon.style.display = "none";
-
-    const existingPreview = container.querySelector('.image-preview');
-    if (existingPreview) {
-      container.removeChild(existingPreview);
-    }
-
-    const previewElement = document.createElement('div');
-    previewElement.className = 'image-preview';
-    previewElement.style.cssText = `
-      width: 100%;
-      height: 100%;
-      background-image: url(${imageData});
-      background-size: contain;
-      background-position: center;
-      background-repeat: no-repeat;
-      position: absolute;
-      top: 0;
-      left: 0;
-      z-index: 1;
-      border-radius: 5px;
-    `;
-
-    container.style.position = "relative";
-    container.style.overflow = "hidden";
-
-    const removeButton = createRemoveButton(() => {
-      container.removeChild(previewElement);
-      if (buttonIcon) buttonIcon.style.display = "inline-block";
-      if (storageKey) removeFromStorage(storageKey);
-    });
-
-    previewElement.appendChild(removeButton);
-    container.appendChild(previewElement);
-
-    if (storageKey) saveToStorage(storageKey, imageData);
-  }
-
-  function createRemoveButton(clickHandler) {
-    const button = document.createElement('button');
-    button.textContent = "✕";
-    button.style.cssText = `
-      position: absolute;
-      top: 5px;
-      right: 5px;
-      z-index: 2;
-      background: rgba(255, 255, 255, 0.7);
-      border: none;
-      border-radius: 50%;
-      width: 20px;
-      height: 20px;
-      cursor: pointer;
-      padding: 0;
-      font-size: 12px;
-    `;
+  function setupImagePreview(inputId, containerId, buttonIconId) {
+    const fileInput = document.getElementById(inputId);
+    const container = document.getElementById(containerId);
+    const buttonIcon = document.getElementById(buttonIconId);
     
-    button.addEventListener("click", function(e) {
-      e.stopPropagation();
-      clickHandler();
-    });
-    
-    return button;
-  }
-
-  function updateUserPhoto(imageData) {
-    const userPhoto = document.getElementById("userPhoto");
-    const userIcon = document.getElementById("userIcon");
-    
-    if (userPhoto) {
-      userPhoto.src = imageData;
-      userPhoto.style.display = "inline-block";
-      
-      if (userIcon) {
-        userIcon.style.display = "none";
-      }
-      
-      saveToStorage('userProfilePhoto', imageData);
-    }
-  }
-
-  // ============================================
-  // CONFIGURAÇÃO DA SIDEBAR - CORRIGIDA PARA MOBILE
-  // ============================================
-  function setupSidebar() {
-    const toggleBtn = document.getElementById("icone2");
-    if (toggleBtn) {
-      // Limpar event listeners existentes
-      const newToggleBtn = toggleBtn.cloneNode(true);
-      toggleBtn.parentNode.replaceChild(newToggleBtn, toggleBtn);
-      
-      // Adicionar event listener ao novo botão
-      newToggleBtn.addEventListener("click", function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        console.log('Sidebar toggle clicked');
-        toggleSidebar();
+    if (fileInput && container) {
+      fileInput.addEventListener("change", function() {
+        if (this.files && this.files[0]) {
+          const reader = new FileReader();
+          
+          reader.onload = function(e) {
+       
+            if (buttonIcon) {
+              buttonIcon.style.display = "none";
+            }
+          
+            const existingPreview = container.querySelector('.image-preview');
+            if (existingPreview) {
+              container.removeChild(existingPreview);
+            }
+            
+           
+            const previewElement = document.createElement('div');
+            previewElement.className = 'image-preview';
+            previewElement.style.width = "100%";
+            previewElement.style.height = "100%";
+            previewElement.style.backgroundImage = `url(${e.target.result})`;
+            previewElement.style.backgroundSize = "contain";
+            previewElement.style.backgroundPosition = "center";
+            previewElement.style.backgroundRepeat = "no-repeat";
+            previewElement.style.position = "absolute";
+            previewElement.style.top = "0";
+            previewElement.style.left = "0";
+            previewElement.style.zIndex = "1";
+            
+            // Ajustar o estilo do contêiner
+            container.style.position = "relative";
+            container.style.overflow = "hidden";
+            
+            // Adicionar opção para remover a imagem
+            const removeButton = document.createElement('button');
+            removeButton.textContent = "✕";
+            removeButton.style.position = "absolute";
+            removeButton.style.top = "5px";
+            removeButton.style.right = "5px";
+            removeButton.style.zIndex = "2";
+            removeButton.style.background = "rgba(255, 255, 255, 0.7)";
+            removeButton.style.border = "none";
+            removeButton.style.borderRadius = "50%";
+            removeButton.style.width = "20px";
+            removeButton.style.height = "20px";
+            removeButton.style.cursor = "pointer";
+            removeButton.style.padding = "0";
+            removeButton.style.fontSize = "12px";
+            
+            removeButton.addEventListener("click", function(e) {
+              e.stopPropagation();
+              container.removeChild(previewElement);
+              fileInput.value = "";
+              if (buttonIcon) {
+                buttonIcon.style.display = "inline-block";
+              }
+            });
+            
+            previewElement.appendChild(removeButton);
+            container.appendChild(previewElement);
+          };
+          
+          reader.readAsDataURL(this.files[0]);
+        }
       });
     }
-    
-    handleSidebarHover();
-    ensureSidebarHeight();
   }
-
-  function toggleSidebar() {
-    const sidebar = document.getElementById("sidebar");
-    const body = document.body;
-    
-    if (!sidebar) {
-      console.warn('Sidebar não encontrada');
-      return;
-    }
-
-    console.log('Toggleando sidebar, estado atual:', sidebar.classList.contains("open"));
-
-    const wasOpen = sidebar.classList.contains("open");
-    
-    // Criar overlay se não existir
-    if (!sidebarOverlay) {
-      createSidebarOverlay();
-    }
-
-    if (wasOpen) {
-      // Fechar sidebar
-      sidebar.classList.remove("open");
-      body.classList.remove("sidebar-open");
-      sidebarOverlay.style.display = "none";
-      document.body.style.overflow = "auto";
-      
-      // Fechar todos os submenus
-      closeAllSubmenus();
-      
-      console.log('Sidebar fechada');
-    } else {
-      // Abrir sidebar
-      sidebar.classList.add("open");
-      body.classList.add("sidebar-open");
-      sidebarOverlay.style.display = "block";
-      document.body.style.overflow = "hidden";
-      
-      // Mostrar logo se estiver em mobile
-      const imgHeader = document.getElementById("imgheader");
-      if (imgHeader && window.innerWidth <= 768) {
-        imgHeader.style.visibility = "visible";
-        imgHeader.style.opacity = "1";
-      }
-      
-      console.log('Sidebar aberta');
-    }
-  }
-
-  // FUNÇÃO CORRIGIDA: Fechar todos os submenus
-  function closeAllSubmenus() {
-    // Fechar submenu de QR Code
-    const submenuQrcode = document.getElementById("submenu-qrcode");
-    const arrow = document.querySelector(".menu-arrow");
-    
-    if (submenuQrcode) {
-      submenuQrcode.style.display = "none";
+  
+  // Adicionar estilos CSS para a prévia
+  const style = document.createElement('style');
+  style.textContent = `
+    .upload-btn {
+      position: relative;
     }
     
-    if (arrow) {
-      arrow.classList.remove("bi-chevron-down");
-      arrow.classList.add("bi-chevron-right");
+    .image-preview {
+      border-radius: 5px;
     }
+  `;
+  document.head.appendChild(style);
+
+  
+document.addEventListener("DOMContentLoaded", function() {
     
-    // Fechar outros submenus se existirem
-    const submenuPontos = document.getElementById('submenu-pontos');
-    if (submenuPontos) {
-      submenuPontos.classList.remove('open');
-    }
+    setupImagePersistence("imageUpload", "imgheader", "headerLogo", "btnn");
     
-    // Fechar qualquer outro submenu que possa existir
-    const allSubmenus = document.querySelectorAll('[id^="submenu-"]');
-    allSubmenus.forEach(submenu => {
-      if (submenu.style) {
-        submenu.style.display = "none";
-      }
-      submenu.classList.remove('open');
-    });
-  }
-
-  function createSidebarOverlay() {
-    if (sidebarOverlay) return sidebarOverlay;
-
-    sidebarOverlay = document.createElement("div");
-    sidebarOverlay.id = "sidebar-overlay";
-    sidebarOverlay.style.cssText = `
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: rgba(0, 0, 0, 0.5);
-      z-index: 650;
-      touch-action: none;
-    `;
+    // Configurar persistência para a imagem do footer
+    setupImagePersistence("imgUpload", "imgfooter", "footerLogo", "btnn2");
     
-    // Event listeners para fechar sidebar
-    sidebarOverlay.addEventListener("click", function(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      console.log('Overlay clicked, fechando sidebar');
-      toggleSidebar();
-    });
-    
-    // Prevenir scroll no fundo quando overlay está ativo
-    sidebarOverlay.addEventListener("touchmove", function(e) {
-      e.preventDefault();
-    });
-    
-    document.body.appendChild(sidebarOverlay);
-    return sidebarOverlay;
-  }
-
-  function handleSidebarHover() {
-    const sidebar = document.getElementById("sidebar");
-    const body = document.body;
-    const imgHeader = document.getElementById("imgheader");
-    
-    if (!sidebar) return;
-
-    // Remover listeners existentes
-    if (sidebar._mouseenterListener) {
-      sidebar.removeEventListener("mouseenter", sidebar._mouseenterListener);
-    }
-    if (sidebar._mouseleaveListener) {
-      sidebar.removeEventListener("mouseleave", sidebar._mouseleaveListener);
-    }
-
-    const isTablet = window.innerWidth > 768 && window.innerWidth <= 992;
-    const isMobile = window.innerWidth <= 768;
-    
-    // Apenas aplicar hover em desktop (não mobile nem tablet)
-    if (!isTablet && !isMobile && window.innerWidth > 992) {
-      const mouseenterListener = function() {
-        if (!sidebar.classList.contains("open")) { // Só expandir se não estiver aberta
-          body.classList.add("sidebar-expanded");
-          if (imgHeader) {
-            imgHeader.style.visibility = "visible";
-            imgHeader.style.opacity = "1";
-          }
-        }
-      };
-      
-      const mouseleaveListener = function() {
-        if (!sidebar.classList.contains("open")) { // Só contrair se não estiver aberta
-          body.classList.remove("sidebar-expanded");
-          closeAllSubmenus();
-        }
-      };
-      
-      sidebar.addEventListener("mouseenter", mouseenterListener);
-      sidebar.addEventListener("mouseleave", mouseleaveListener);
-      
-      sidebar._mouseenterListener = mouseenterListener;
-      sidebar._mouseleaveListener = mouseleaveListener;
-    } else if (isTablet && imgHeader) {
-      // Em tablet, sempre mostrar logo
-      imgHeader.style.visibility = "visible";
-      imgHeader.style.opacity = "1";
-    }
-  }
-
-  function ensureSidebarHeight() {
-    const sidebar = document.getElementById("sidebar");
-    if (!sidebar || window.innerWidth > 768) return;
-
-    const docHeight = Math.max(
-      document.body.scrollHeight,
-      document.body.offsetHeight,
-      document.documentElement.clientHeight,
-      document.documentElement.scrollHeight,
-      document.documentElement.offsetHeight
-    );
-
-    sidebar.style.height = Math.max(docHeight, window.innerHeight) + "px";
-  }
-
-  // ============================================
-  // CONFIGURAÇÃO DO SUBMENU - MELHORADA
-  // ============================================
-  function setupSubmenuToggle() {
-    // Configurar toggle do submenu principal
-    window.toggleSubmenu = function() {
-      const submenu = document.getElementById('submenu-pontos');
-      const arrow = document.querySelector('.menu-arrow');
-      
-      if (!submenu) return;
-      
-      if (submenu.classList.contains('open')) {
-        submenu.classList.remove('open');
-        if (arrow) arrow.classList.remove('rotated');
-      } else {
-        submenu.classList.add('open');
-        if (arrow) arrow.classList.add('rotated');
-      }
-    };
-
-    // FUNÇÃO MELHORADA: Toggle do submenu de QR Code
-    window.togglePontosColetaSubmenu = function() {
-      const submenu = document.getElementById("submenu-qrcode");
-      const arrow = document.querySelector(".menu-arrow");
-
-      if (!submenu) {
-        console.warn('Submenu QR Code não encontrado');
-        return;
-      }
-
-      const isCurrentlyOpen = submenu.style.display === "block";
-
-      if (isCurrentlyOpen) {
-        // Fechar submenu
-        submenu.style.display = "none";
-        if (arrow) {
-          arrow.classList.remove("bi-chevron-down");
-          arrow.classList.add("bi-chevron-right");
-        }
-        console.log('Submenu QR Code fechado');
-      } else {
-        // Abrir submenu
-        submenu.style.display = "block";
-        if (arrow) {
-          arrow.classList.remove("bi-chevron-right");
-          arrow.classList.add("bi-chevron-down");
-        }
-        console.log('Submenu QR Code aberto');
-      }
-    };
-  }
-
-  // ============================================
-  // GERENCIAMENTO DE ARMAZENAMENTO
-  // ============================================
-  function saveToStorage(key, value) {
-    try {
-      localStorage.setItem(key, value);
-    } catch (error) {
-      console.warn('Erro ao salvar no localStorage:', error);
-    }
-  }
-
-  function getFromStorage(key) {
-    try {
-      return localStorage.getItem(key);
-    } catch (error) {
-      console.warn('Erro ao ler do localStorage:', error);
-      return null;
-    }
-  }
-
-  function removeFromStorage(key) {
-    try {
-      localStorage.removeItem(key);
-    } catch (error) {
-      console.warn('Erro ao remover do localStorage:', error);
-    }
-  }
-
-   function loadSavedData() {
+  
     loadSavedImages();
-  }   
+  });
+  
+
+  function setupImagePersistence(inputId, containerId, storageKey, buttonIconId) {
+    const fileInput = document.getElementById(inputId);
+    
+    if (fileInput) {
+      fileInput.addEventListener("change", function() {
+        if (this.files && this.files[0]) {
+          const reader = new FileReader();
+          
+          reader.onload = function(e) {
+
+            localStorage.setItem(storageKey, e.target.result);
+          };
+          
+          reader.readAsDataURL(this.files[0]);
+        }
+      });
+    }
+  }
+  
+
+  function loadSavedImages() {
+
+    const headerLogo = localStorage.getItem('headerLogo');
+    if (headerLogo) {
+      createImagePreview('imgheader', headerLogo, 'btnn');
+    }
+    
+    const footerLogo = localStorage.getItem('footerLogo');
+    if (footerLogo) {
+      createImagePreview('imgfooter', footerLogo, 'btnn2');
+    }
+  }
+  
+
+  function createImagePreview(containerId, imageData, buttonIconId) {
+    const container = document.getElementById(containerId);
+    const buttonIcon = document.getElementById(buttonIconId);
+    
+    if (container && buttonIcon) {
+
+      buttonIcon.style.display = "none";
+      
+
+      const existingPreview = container.querySelector('.image-preview');
+      if (existingPreview) {
+        container.removeChild(existingPreview);
+      }
+      
+
+      const previewElement = document.createElement('div');
+      previewElement.className = 'image-preview';
+      previewElement.style.width = "100%";
+      previewElement.style.height = "100%";
+      previewElement.style.backgroundImage = `url(${imageData})`;
+      previewElement.style.backgroundSize = "contain";
+      previewElement.style.backgroundPosition = "center";
+      previewElement.style.backgroundRepeat = "no-repeat";
+      previewElement.style.position = "absolute";
+      previewElement.style.top = "0";
+      previewElement.style.left = "0";
+      previewElement.style.zIndex = "1";
+   
+      container.style.position = "relative";
+      container.style.overflow = "hidden";
+      
+      const removeButton = document.createElement('button');
+      removeButton.textContent = "✕";
+      removeButton.style.position = "absolute";
+      removeButton.style.top = "5px";
+      removeButton.style.right = "5px";
+      removeButton.style.zIndex = "2";
+      removeButton.style.background = "rgba(255, 255, 255, 0.7)";
+      removeButton.style.border = "none";
+      removeButton.style.borderRadius = "50%";
+      removeButton.style.width = "20px";
+      removeButton.style.height = "20px";
+      removeButton.style.cursor = "pointer";
+      removeButton.style.padding = "0";
+      removeButton.style.fontSize = "12px";
+      
+      removeButton.addEventListener("click", function(e) {
+        e.stopPropagation();
+        container.removeChild(previewElement);
+        
+
+        if (containerId === 'imgheader') {
+          localStorage.removeItem('headerLogo');
+        } else if (containerId === 'imgfooter') {
+          localStorage.removeItem('footerLogo');
+        }
+        
+        buttonIcon.style.display = "inline-block";
+      });
+      
+      previewElement.appendChild(removeButton);
+      container.appendChild(previewElement);
+    }
+  }
+
+userPhotoInput.addEventListener("change", function() {
+    if (this.files && this.files[0]) {
+      const reader = new FileReader();
+      
+      reader.onload = function(e) {
+        const userPhoto = document.getElementById("userPhoto");
+        if (userPhoto) {
+          userPhoto.src = e.target.result;
+          userPhoto.style.display = "inline-block";
+          
+          // Esconder o ícone padrão
+          const userIcon = document.getElementById("userIcon");
+          if (userIcon) {
+            userIcon.style.display = "none";
+          }
+          
+          // Salvar no localStorage para persistência
+          localStorage.setItem('userProfilePhoto', e.target.result);
+        }
+      };
+      
+      reader.readAsDataURL(this.files[0]);
+    }
+  });
   
   function loadSavedImages() {
-    const headerLogo = getFromStorage('headerLogo');
-    if (headerLogo) {
-      const container = document.getElementById('imgheader');
-      const buttonIcon = document.getElementById('btnn');
-      if (container) {
-        createImagePreview(container, headerLogo, buttonIcon, 'headerLogo');
+    
+    // Carregar foto de perfil
+    const savedProfilePhoto = localStorage.getItem('userProfilePhoto');
+    if (savedProfilePhoto) {
+      const userPhoto = document.getElementById("userPhoto");
+      const userIcon = document.getElementById("userIcon");
+      
+      if (userPhoto) {
+        userPhoto.src = savedProfilePhoto;
+        userPhoto.style.display = "inline-block";
+        
+        if (userIcon) {
+          userIcon.style.display = "none";
+        }
       }
     }
-
-    const footerLogo = getFromStorage('footerLogo');
-    if (footerLogo) {
-      const container = document.getElementById('imgfooter');
-      const buttonIcon = document.getElementById('btnn2');
-      if (container) {
-        createImagePreview(container, footerLogo, buttonIcon, 'footerLogo');
-      }
-    }
-
-    const profilePhoto = getFromStorage('userProfilePhoto');
-    if (profilePhoto) {
-      updateUserPhoto(profilePhoto);
-    }
   }
-
-  // ============================================
-  // UTILITÁRIOS
-  // ============================================
-  function debounce(func, wait) {
-    let timeout;
-    return function executedFunction(...args) {
-      const later = () => {
-        clearTimeout(timeout);
-        func(...args);
-      };
-      clearTimeout(timeout);
-      timeout = setTimeout(later, wait);
-    };
-  }
-
-  function handleResize() {
-    setupProfileDropdown();
-    handleSidebarHover();
-    ensureSidebarHeight();
-  }
-
-  // ============================================
-  // EXPOSIÇÃO DE FUNÇÕES GLOBAIS
-  // ============================================
-  window.toggleSidebar = toggleSidebar;
-  window.gerarLinkInstagram = gerarLinkInstagram;
-  window.gerarLinkFacebook = gerarLinkFacebook;
-
-})();
+  
