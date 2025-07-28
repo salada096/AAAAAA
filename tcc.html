@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Transparência - Parcerias e Convênios</title>
-    <link rel="stylesheet" href="tcc.css">
-    <script src="tcc.js"></script>
+    <link rel="stylesheet" href="trr.css">
+    <script src="trr.js"></script>
    
 </head>
 <body>
@@ -14,8 +14,9 @@
         <p class="subtitle">Parcerias e Convênios</p>
         <p class="subtitle">Aqui são evidenciados todos os contratos, parcerias, empresas e organizações</p>
 
-        <div class="form-section">
-            <div class="form-title">Cadastrar Nova Parceria</div>
+        <div class="form-section" id="formSection">
+            <div class="form-title" id="formTitle">Cadastrar Nova Parceria</div>
+            
             <form id="partnershipForm">
                 <div class="form-grid">
                     <div class="form-group">
@@ -63,11 +64,13 @@
                     <textarea id="objective" placeholder="Descreva o objetivo e finalidade da parceria..." required></textarea>
                 </div>
                
-                <button type="submit" class="btn">Adicionar Parceria</button>
+                <div id="formButtons">
+                    <button type="submit" class="btn" id="submitBtn">Adicionar Parceria</button>
+                </div>
             </form>
         </div>
 
-         <div class="stats-grid">
+        <div class="stats-grid">
             <div class="stat-card highlight">
                 <div class="stat-value" id="totalValue">R$ 0,00</div>
                 <div class="stat-label">Valor Total</div>
@@ -82,75 +85,10 @@
             </div>
         </div>
 
-
         <div class="section-header">Parcerias Cadastradas</div>
-
 
         <div id="partnershipsList" class="partnerships-list">
             <div class="empty-state">Nenhuma parceria cadastrada ainda.</div>
-        </div>
-
-
-        <!-- Modal para edição -->
-        <div id="editModal" class="modal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <div class="modal-title">Editar Parceria</div>
-                    <span class="close" onclick="closeEditModal()">&times;</span>
-                </div>
-                <form id="editPartnershipForm">
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label for="editPartnerName">Nome do Parceiro/Organização *</label>
-                            <input type="text" id="editPartnerName" required>
-                        </div>
-                       
-                        <div class="form-group">
-                            <label for="editPartnershipValue">Valor da Parceria (R$) *</label>
-                            <input type="number" id="editPartnershipValue" step="0.01" min="0" required>
-                        </div>
-                       
-                        <div class="form-group">
-                            <label for="editStartDate">Data de Início *</label>
-                            <input type="date" id="editStartDate" required>
-                        </div>
-                       
-                        <div class="form-group">
-                            <label for="editEndDate">Data de Término</label>
-                            <input type="date" id="editEndDate">
-                        </div>
-                       
-                        <div class="form-group">
-                            <label for="editPartnerType">Tipo de Parceiro *</label>
-                            <select id="editPartnerType" required>
-                                <option value="">Selecione...</option>
-                                <option value="public">Público</option>
-                                <option value="ong">ONG</option>
-                                <option value="private">Privado</option>
-                            </select>
-                        </div>
-                       
-                        <div class="form-group">
-                            <label for="editStatus">Status *</label>
-                            <select id="editStatus" required>
-                                <option value="">Selecione...</option>
-                                <option value="active">Ativo</option>
-                                <option value="renewal">Renovação</option>
-                            </select>
-                        </div>
-                    </div>
-                   
-                    <div class="form-group" style="margin-top: 20px;">
-                        <label for="editObjective">Objetivo da Parceria *</label>
-                        <textarea id="editObjective" placeholder="Descreva o objetivo e finalidade da parceria..." required></textarea>
-                    </div>
-                   
-                    <div style="margin-top: 20px;">
-                        <button type="submit" class="btn-save">Salvar Alterações</button>
-                        <button type="button" class="btn-cancel" onclick="closeEditModal()">Cancelar</button>
-                    </div>
-                </form>
-            </div>
         </div>
     </div>
 </body>
