@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo de Produtos</title>
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Passion+One:wght@400;700;900&display=swap");
+        @import url("https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@100..900&display=swap");
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family:"Lexend Deca";
+            background-color: #ffffff;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+        }
+
+        .header{
+            text-align: center;
+            display:flex;
+            flex-direction: row;
+            justify-content: center;
+            margin-bottom: 30px;
+            font-size: 32px;
+        }
+
+        .title {
+            display:flex;
+            flex-direction:row;
+            text-align: center;
+            color: #693B11;
+            margin-bottom: 10px;
+            font-size: 32px;
+            font-family: 'Passion One', cursive;
+        }
+
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-bottom: 30px;
+        }
+
+        .nav-tab {
+            padding: 10px 20px;
+            background: none;
+            border: none;
+            color: #666;
+            font-size: 16px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .nav-tab.active {
+            color: #333;
+            border-bottom-color: #007bff;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+
+        .product-card.hidden {
+            display: none;
+        }
+
+        .card-content {
+            display: flex;
+            padding: 20px;
+            gap: 20px;
+        }
+
+        .product-image {
+            width: 120px;
+            height: 120px;
+            border-radius: 8px;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+
+        .product-details {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .product-id {
+            color: #666;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .product-specs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin: 10px 0;
+        }
+
+        .spec-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: #555;
+        }
+
+        .spec-icon {
+            width: 16px;
+            height: 16px;
+            background: #007bff;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .product-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: auto;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+
+        .btn-recolhido {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-nao-recolhido {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+            transform: scale(1.05);
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 40px;
+        }
+
+        .page-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #ccc;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .page-dot.active {
+            background: #007bff;
+            transform: scale(1.3);
+        }
+
+        @media (max-width: 768px) {
+            .products-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .card-content {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+
+            .product-specs {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 class="title">Verificação de doações</h1>
+    </div>
+    
+    <div class="nav-tabs">
+        <button class="nav-tab active" data-filter="todos">Todos (6)</button>
+        <button class="nav-tab" data-filter="recolhidos">Recolhidos (3)</button>
+        <button class="nav-tab" data-filter="nao-recolhidos">Não recolhidos (3)</button>
+    </div>
+
+    <div class="products-grid">
+        <!-- Produto 1 -->
+        <div class="product-card" data-status="nao-recolhido">
+            <div class="card-content">
+                <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=120&h=120&fit=crop" alt="Ponto de Coleta" class="product-image">
+                <div class="product-details">
+                    <div class="product-id">Ponto de coleta: #01</div>
+                    <div class="product-specs">
+                        <div class="spec-item">
+                            <div class="spec-icon"></div>
+                            <span>Código: 001</span>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-icon"></div>
+                            <span>Centro da cidade</span>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-icon"></div>
+                            <span>Roupas</span>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-icon"></div>
+                            <span>Data: 25/07/2025</span>
+                        </div>
+                    </div>
+                    <div class="product-actions">
+                        <button class="btn btn-recolhido" onclick="marcarRecolhido(this)">Recolhido</button>
+                        <button class="btn btn-nao-recolhido" onclick="marcarNaoRecolhido(this)">Não Recolhido</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Produto 2 -->
+        <div class="product-card" data-status="recolhido">
+            <div class="card-content">
+                <img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=120&h=120&fit=crop" alt="Ponto de Coleta" class="product-image">
+                <div class="product-details">
+                    <div class="product-id">Ponto de coleta: #02</div>
+                    <div class="product-specs">
+                        <div class="spec-item">
+                            <div class="spec-icon"></div>
+                            <span>Código: 002</span>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-icon"></div>
+                            <span>Bairro Norte</span>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-icon"></div>
+                            <span>Alimentos</span>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-icon"></div>
+                            <span>Data: 24/07/2025</span>
+                        </div>
+                    </div>
+                    <div class="product-actions">
+                        <button class="btn btn-recolhido" onclick="marcarRecolhido(this)">Recolhido</button>
+                        <button class="btn btn-nao-recolhido" onclick="marcarNaoRecolhido(this)">Não Recolhido</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Produto 3 -->
+        <div class="product-card" data-status="recolhido">
+            <div class="card-content">
+                <img src="https://images.unsplash.com/photo-1586864387967-d02ef85d93e8?w=120&h=120&fit=crop" alt="Ponto de Coleta" class="product-image">
+                <div class="product-details">
+                    <div class="product-id">Ponto de coleta: #03</div>
+                    <div class="product-specs">
+                        <div class="spec-item">
+                            <div class="spec-icon"></div>
+                            <span>Código: 003</span>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-icon"></div>
+                            <span>Zona Sul</span>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-icon"></div>
+                            <span>Brinquedos</span>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-icon"></div>
+                            <span>Data: 23/07/2025</span>
+                        </div>
+                    </div>
+                    <div class="product-actions">
+                        <button class="btn btn-recolhido" onclick="marcarRecolhido(this)">Recolhido</button>
+                        <button class="btn btn-nao-recolhido" onclick="marcarNaoRecolhido(this)">Não Recolhido</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Produto 4 -->
+        <div class="product-card" data-status="nao-recolhido">
+            <div class="card-content">
+                <img src="https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=120&h=120&fit=crop" alt="Ponto de Coleta" class="product-image">
+                <div class="product-details">
+                    <div class="product-id">Ponto de coleta: #04</div>
+                    <div class="product-specs">
+                        <div class="spec-item">
+                            <div class="spec-icon"></div>
+                            <span>Código: 004</span>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-icon"></div>
+                            <span>Bairro Leste</span>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-icon"></div>
+                            <span>Livros</span>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-icon"></div>
+                            <span>Data: 26/07/2025</span>
+                        </div>
+                    </div>
+                    <div class="product-actions">
+                        <button class="btn btn-recolhido" onclick="marcarRecolhido(this)">Recolhido</button>
+                        <button class="btn btn-nao-recolhido" onclick="marcarNaoRecolhido(this)">Não Recolhido</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Produto 5 -->
+        <div class="product-card" data-status="recolhido">
+            <div class="card-content">
+                <img src="https://images.unsplash.com/photo-1599950750883-e31e3bb3c35d?w=120&h=120&fit=crop" alt="Ponto de Coleta" class="product-image">
+                <div class="product-details">
+                    <div class="product-id">Ponto de coleta: #05</div>
+                    <div class="product-specs">
+                        <div class="spec-item">
+                            <div class="spec-icon"></div>
+                            <span>Código: 005</span>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-icon"></div>
+                            <span>Centro Oeste</span>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-icon"></div>
+                            <span>Móveis</span>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-icon"></div>
+                            <span>Data: 22/07/2025</span>
+                        </div>
+                    </div>
+                    <div class="product-actions">
+                        <button class="btn btn-recolhido" onclick="marcarRecolhido(this)">Recolhido</button>
+                        <button class="btn btn-nao-recolhido" onclick="marcarNaoRecolhido(this)">Não Recolhido</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Produto 6 -->
+        <div class="product-card" data-status="nao-recolhido">
+            <div class="card-content">
+                <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=120&h=120&fit=crop" alt="Ponto de Coleta" class="product-image">
+                <div class="product-details">
+                    <div class="product-id">Ponto de coleta: #06</div>
+                    <div class="product-specs">
+                        <div class="spec-item">
+                            <div class="spec-icon"></div>
+                            <span>Código: 006</span>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-icon"></div>
+                            <span>Periferia</span>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-icon"></div>
+                            <span>Eletrônicos</span>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-icon"></div>
+                            <span>Data: 27/07/2025</span>
+                        </div>
+                    </div>
+                    <div class="product-actions">
+                        <button class="btn btn-recolhido" onclick="marcarRecolhido(this)">Recolhido</button>
+                        <button class="btn btn-nao-recolhido" onclick="marcarNaoRecolhido(this)">Não Recolhido</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="pagination">
+        <div class="page-dot active"></div>
+        <div class="page-dot"></div>
+        <div class="page-dot"></div>
+        <div class="page-dot"></div>
+        <div class="page-dot"></div>
+    </div>
+
+    <script>
+        // Funcionalidade das abas com filtro
+        const navTabs = document.querySelectorAll('.nav-tab');
+        const productCards = document.querySelectorAll('.product-card');
+
+        navTabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                navTabs.forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                
+                const filter = this.getAttribute('data-filter');
+                filterProducts(filter);
+            });
+        });
+
+        function filterProducts(filter) {
+            productCards.forEach(card => {
+                const status = card.getAttribute('data-status');
+                
+                if (filter === 'todos') {
+                    card.classList.remove('hidden');
+                } else if (filter === 'recolhidos' && status === 'recolhido') {
+                    card.classList.remove('hidden');
+                } else if (filter === 'nao-recolhidos' && status === 'nao-recolhido') {
+                    card.classList.remove('hidden');
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+        }
+
+        // Funcionalidade dos botões de marcar como recolhido/não recolhido
+        function marcarRecolhido(button) {
+            const card = button.closest('.product-card');
+            card.setAttribute('data-status', 'recolhido');
+            
+            // Atualizar contadores
+            atualizarContadores();
+            
+            // Aplicar filtro atual
+            const activeTab = document.querySelector('.nav-tab.active');
+            const currentFilter = activeTab.getAttribute('data-filter');
+            filterProducts(currentFilter);
+        }
+
+        function marcarNaoRecolhido(button) {
+            const card = button.closest('.product-card');
+            card.setAttribute('data-status', 'nao-recolhido');
+            
+            // Atualizar contadores
+            atualizarContadores();
+            
+            // Aplicar filtro atual
+            const activeTab = document.querySelector('.nav-tab.active');
+            const currentFilter = activeTab.getAttribute('data-filter');
+            filterProducts(currentFilter);
+        }
+
+        function atualizarContadores() {
+            const totalCards = productCards.length;
+            const recolhidos = document.querySelectorAll('.product-card[data-status="recolhido"]').length;
+            const naoRecolhidos = document.querySelectorAll('.product-card[data-status="nao-recolhido"]').length;
+            
+            // Atualizar textos das abas
+            document.querySelector('[data-filter="todos"]').textContent = `Todos (${totalCards})`;
+            document.querySelector('[data-filter="recolhidos"]').textContent = `Recolhidos (${recolhidos})`;
+            document.querySelector('[data-filter="nao-recolhidos"]').textContent = `Não recolhidos (${naoRecolhidos})`;
+        }
+
+        // Funcionalidade da paginação
+        const pageDots = document.querySelectorAll('.page-dot');
+        pageDots.forEach(dot => {
+            dot.addEventListener('click', function() {
+                pageDots.forEach(d => d.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Animação dos cards
+        productCards.forEach((card, index) => {
+            card.style.animationDelay = `${index * 0.1}s`;
+        });
+
+        // Inicializar contadores
+        atualizarContadores();
+    </script>
+</body>
+</html>
