@@ -45,51 +45,82 @@ body {
  
         }
 
+.nav-tabs {
+    display: flex;
+    justify-content: center;
+    border-bottom: 2px solid #ddd;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
 
-        .nav-tabs {
-            display: flex;
-            justify-content: center;
-            border-bottom: 2px solid #ddd;
-            margin-bottom: 40px;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
+.nav-tab {
+    background: none;
+    border: none;
+    padding: 15px 20px;
+    cursor: pointer;
+    font-family: 'Lexend Deca', sans-serif;
+    font-size: 14px;
+    color: #666;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    border-bottom: 3px solid transparent;
+}
 
+.nav-tab.active {
+    color: #8B4513;
+    border-bottom-color: #8B4513;
+}
 
-        .nav-tab {
-            background: none;
-            border: none;
-            padding: 15px 20px;
-            cursor: pointer;
-            font-family: 'Lexend Deca', sans-serif;
-            font-size: 14px;
-            color: #666;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.3s ease;
-            border-bottom: 3px solid transparent;
-        }
+.nav-tab:hover {
+    color: #8B4513;
+}
 
+.icon {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+}
 
-        .nav-tab.active {
-            color: #8B4513;
-            border-bottom-color: #8B4513;
-            background-color: #ebebebc5;
-        }
+/* Media query para telas pequenas */
+@media (max-width: 768px) {
+    .nav-tab {
+        padding: 12px 8px; /* Reduz o padding para economizar espaço */
+        font-size: 0; /* Esconde o texto */
+        gap: 0; /* Remove o gap entre ícone e texto */
+        min-width: 44px; /* Garante área mínima para toque */
+        justify-content: center;
+    }
+    
+    .nav-tab .icon {
+        width: 24px; /* Aumenta ligeiramente o ícone para melhor visibilidade */
+        height: 24px;
+    }
+    
+    .nav-tabs {
+        gap: 5px; /* Reduz o espaçamento entre os botões */
+    }
+}
 
-
-        .nav-tab:hover {
-            color: #8B4513;
-        }
-
-
-        .icon {
-            width: 20px;
-            height: 20px;
-            fill: currentColor;
-        }
-
+/* Para telas muito pequenas (smartphones) */
+@media (max-width: 480px) {
+    .nav-tab {
+        padding: 10px 6px;
+        min-width: 40px;
+    }
+    
+    .nav-tab .icon {
+        width: 22px;
+        height: 22px;
+    }
+    
+    .nav-tabs {
+        gap: 3px;
+        margin-bottom: 30px;
+    }
+}
 
         .page {
             display: none;
