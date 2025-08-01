@@ -127,6 +127,7 @@
     color: #000000;
     margin-bottom: 20px;
     display: flex;
+    font-weight: 400;
     
 }
 
@@ -142,13 +143,14 @@
 .form-group {
     display: flex;
     flex-direction: column;
+     font-size: 14px;
 }
 
 .form-group label {
     
     color: #000000;
     margin-bottom: 8px;
-    font-size: 0.95rem;
+    font-size: 14px;
 }
 
 .form-group input, .form-group select {
