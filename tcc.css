@@ -21,6 +21,7 @@
             max-width: 1200px;
             margin: 0 auto;
             background: white;
+            padding: 30px;
           
             
         }
@@ -165,9 +166,9 @@
 
         .form-title {
             color: #000000;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             font-size: 16px;
-            font-weight:bold;
+            font-weight:400;
            
         }
 
@@ -189,9 +190,10 @@
 
         label {
             margin-bottom: 5px;
-            font-size: 16px;
+            font-size: 14px;
             color: #000000;
-            outline:none
+            outline:none;
+       
           
         }
 
